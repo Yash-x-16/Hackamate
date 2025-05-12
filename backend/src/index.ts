@@ -178,12 +178,30 @@ app.delete('/tag',Middleware,async(req,res)=>{
     const name = req.body.name 
     
     try{
-        const tag = await client.tag.delete({
+        const tag = await client.tag.findUnique({
             where:{
                 name:name
             }
+        }) 
+
+        await client.userTag.delete({
+            where:{
+                userId_tagId:{ //@ts-ignore
+                    userId : req.id , 
+                    tagId : tag?.id as number
+                }
+            } 
         })
-    }catch{}
+        res.json({
+          message:"deleted tag"      
+        })
+
+    }catch(e){
+        console.log(e)
+        res.json({
+            message:"cannot deleted tag"      
+          })
+    }
 })
 
 

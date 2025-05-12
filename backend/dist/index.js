@@ -146,6 +146,33 @@ app.get('/tag', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0,
         });
     }
 }));
+app.delete('/tag', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const name = req.body.name;
+    try {
+        const tag = yield client.tag.findUnique({
+            where: {
+                name: name
+            }
+        });
+        yield client.userTag.delete({
+            where: {
+                userId_tagId: {
+                    userId: req.id,
+                    tagId: tag === null || tag === void 0 ? void 0 : tag.id
+                }
+            }
+        });
+        res.json({
+            message: "deleted tag"
+        });
+    }
+    catch (e) {
+        console.log(e);
+        res.json({
+            message: "cannot deleted tag"
+        });
+    }
+}));
 app.listen(3000, () => {
     console.log("server is running !!");
 });
