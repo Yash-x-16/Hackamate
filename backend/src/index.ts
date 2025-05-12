@@ -6,6 +6,7 @@ import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcrypt"
 import jsonwebtoken from "jsonwebtoken" 
 import { Jwt_secret } from "./config"
+import { Middleware } from "./middleware"
 
 
 const app = express()
@@ -30,7 +31,6 @@ app.post('/signup',async (req,res)=>{
                     email : email
                 }
         }) 
-
         res.json({
             message : "signed up complete !!"
         })
@@ -77,6 +77,113 @@ app.post('/signin',async (req,res)=>{
             message:"try again !!"
         })
     }
+})
+
+
+app.post('/profile',Middleware,async(req ,res)=>{
+    const {bio,role,image} = req.body ; 
+
+    try{
+
+      await client.profile.create({
+ 
+            data:{
+                bio : bio , 
+                role : role , 
+                image : image , 
+                user:{
+                    connect:{  //@ts-ignore
+                        id : req.id 
+                    }
+                }
+            
+        }
+               
+        }) 
+
+        res.json({
+          message : "updated the profile "  
+        })
+
+    }catch{
+        res.json({
+            message: "something went wrong !!"
+        })
+    }
+})
+
+
+app.post('/tag',Middleware,async(req,res)=>{
+
+    const name = req.body.name 
+    
+    try{
+        await client.tag.create({
+            data:{
+                name: name,
+                }
+        })
+
+        const tagId = await client.tag.findFirst({
+            where:{
+                name : name
+            } 
+        })
+
+        await client.userTag.create({
+            data :{ //@ts-ignore
+                userId:req.id  , 
+                tagId : tagId?.id as number
+               }
+        })
+        res.json({
+            message :"tag added !!"
+        })
+
+    }catch{
+        res.json({
+            message :" couldn't update !!"
+        })
+    }
+})
+
+
+app.get('/tag',Middleware,async(req,res)=>{
+        
+    try{
+        const tags = await client.userTag.findMany({
+            where:{
+                //@ts-ignore
+                userId:req.id
+            },include:{
+                tag:true
+            },
+        })  
+
+        const tagname = tags.map(entry=>entry.tag.name)
+
+        res.json({
+            tags : tagname
+                })
+    }
+    catch{
+        res.json({
+            message:"coudn't find any tag!!"
+        })
+    }
+})
+
+
+app.delete('/tag',Middleware,async(req,res)=>{
+    const name = req.body.name 
+    
+    try{
+        const tag = await client.tag.delete({
+            where:{
+                name:name
+            }
+        })
+    }catch{}
 })
 
 

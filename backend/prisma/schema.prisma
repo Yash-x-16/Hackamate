@@ -19,14 +19,41 @@ model User {
   username String   @unique
   password String
   email    String
-  Profile  Profile?
+  Profile  Profile? 
+    tags       UserTag[]
+  hackathons Hackathon[]
+
 }
 
 model Profile {
   id          Int    @unique @default(autoincrement())
   bio         String
-  achievement String
+  role        String
+  image       Bytes
   userId      Int    @unique
   user        User   @relation(fields: [userId], references: [id])
 }
 
+model Tag {
+  id       Int        @id @default(autoincrement())
+  name     String     @unique
+  userTags UserTag[]
+}
+
+model UserTag {
+  userId Int
+  tagId  Int
+  user   User @relation(fields: [userId], references: [id])
+  tag    Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([userId, tagId]) 
+} 
+
+model Hackathon{
+  id Int @unique @default(autoincrement()) 
+  name String 
+  placement String?
+  year  Int 
+  userid Int 
+  user User @relation(fields: [userid],references: [id])
+}

@@ -18,6 +18,7 @@ const client_1 = require("@prisma/client");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("./config");
+const middleware_1 = require("./middleware");
 const app = (0, express_1.default)();
 const client = new client_1.PrismaClient();
 const jwt = jsonwebtoken_1.default;
@@ -67,6 +68,81 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     catch (_a) {
         res.json({
             message: "try again !!"
+        });
+    }
+}));
+app.post('/profile', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { bio, role, image } = req.body;
+    try {
+        yield client.profile.create({
+            data: {
+                bio: bio,
+                role: role,
+                image: image,
+                user: {
+                    connect: {
+                        id: req.id
+                    }
+                }
+            }
+        });
+        res.json({
+            message: "updated the profile "
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: "something went wrong !!"
+        });
+    }
+}));
+app.post('/tag', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const name = req.body.name;
+    try {
+        yield client.tag.create({
+            data: {
+                name: name,
+            }
+        });
+        const tagId = yield client.tag.findFirst({
+            where: {
+                name: name
+            }
+        });
+        yield client.userTag.create({
+            data: {
+                userId: req.id,
+                tagId: tagId === null || tagId === void 0 ? void 0 : tagId.id
+            }
+        });
+        res.json({
+            message: "tag added !!"
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: " couldn't update !!"
+        });
+    }
+}));
+app.get('/tag', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const tags = yield client.userTag.findMany({
+            where: {
+                //@ts-ignore
+                userId: req.id
+            }, include: {
+                tag: true
+            },
+        });
+        const tagname = tags.map(entry => entry.tag.name);
+        res.json({
+            tags: tagname
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: "coudn't find any tag!!"
         });
     }
 }));
