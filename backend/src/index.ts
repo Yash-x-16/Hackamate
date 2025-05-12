@@ -113,6 +113,28 @@ app.post('/profile',Middleware,async(req ,res)=>{
 })
 
 
+app.get('/profile',Middleware,async (req,res)=>{
+    
+    try{
+    
+    const profile = await client.profile.findFirst({
+
+        where:{  //@ts-ignore
+            userId:req.id 
+        }
+    })  
+     res.json({
+        profile: profile
+     })
+
+    }catch{
+        res.json({
+            message:" cannot get profile !! "
+        })
+    }
+})
+ 
+
 app.post('/tag',Middleware,async(req,res)=>{
 
     const name = req.body.name 

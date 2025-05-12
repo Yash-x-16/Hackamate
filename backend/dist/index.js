@@ -96,6 +96,23 @@ app.post('/profile', middleware_1.Middleware, (req, res) => __awaiter(void 0, vo
         });
     }
 }));
+app.get('/profile', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const profile = yield client.profile.findFirst({
+            where: {
+                userId: req.id
+            }
+        });
+        res.json({
+            profile: profile
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: " cannot get profile !! "
+        });
+    }
+}));
 app.post('/tag', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const name = req.body.name;
     try {
