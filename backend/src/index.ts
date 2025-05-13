@@ -252,7 +252,98 @@ app.delete('/tag',Middleware,async(req,res)=>{
 })
 
 
+app.post('/messages',Middleware,async(req,res)=>{
+    const {content,recieverId} =req.body
 
+    try{
+         await client.message.create({
+            data:{
+                content:content , 
+                recieverId:recieverId ,//@ts-ignore 
+                senderId:req.id
+            }
+        })
+
+        res.json({
+            message:"message sent !"
+        })
+
+    }catch{
+
+        res.json({
+            message:"message not sent !"
+        })
+    }
+})
+
+
+app.get('/messages',Middleware,async(req,res)=>{
+
+    try{
+        const message = await client.message.findMany({
+            where:{
+                //@ts-ignore
+                id:req.id
+            }
+        })
+
+        const content  = message.map(x=>x.content)
+        res.json({
+            message:content
+        })
+
+    }catch{
+
+        res.json({
+            message:"message not found !"
+        })
+    }
+})
+
+
+app.post('/hackathon',Middleware,async(req,res)=>{
+    
+    const {name,placement,year} = req.body 
+
+    try{
+        await client.hackathon.create({
+            data:{
+                name :name as string,
+                placement :placement as string,
+                year : year as number, //@ts-ignore
+                user : req.id
+            }
+        })
+
+        res.json({
+            message:"updated hackathon"
+        })
+    }catch{
+        res.json({
+            message:"try again !!"
+        })
+    }
+})
+
+app.get('/hackathon',Middleware,async (req,res)=>{
+  try{
+  const hack =   await client.hackathon.findMany({
+        where:{//@ts-ignore
+            userid:req.id 
+        }
+    }) 
+
+    const hacked  = hack.map(x=>x)
+    res.json({
+        hack : hacked
+    }) 
+
+    }catch{
+        res.json({
+            message:"didn't found hacks!!"
+        })
+    }
+})
 
 app.listen(3000,()=>{
     console.log("server is running !!")
