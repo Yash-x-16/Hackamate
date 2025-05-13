@@ -20,9 +20,10 @@ model User {
   password String
   email    String
   Profile  Profile? 
-    tags       UserTag[]
+  tags       UserTag[]
   hackathons Hackathon[]
-
+  sentmessages     Message[] @relation("sentmessages")
+  recievedmessages Message[] @relation("recievedmessages")
 }
 
 model Profile {
@@ -32,6 +33,7 @@ model Profile {
   image       Bytes
   userId      Int    @unique
   user        User   @relation(fields: [userId], references: [id])
+
 }
 
 model Tag {
@@ -56,4 +58,14 @@ model Hackathon{
   year  Int 
   userid Int 
   user User @relation(fields: [userid],references: [id])
+} 
+
+model Message{
+  id Int @unique @default(autoincrement())
+  senderId Int
+  recieverId Int 
+  content String
+  timestamp  DateTime @default(now())
+  sentmessages User @relation("sentmessages",fields:[senderId],references:[id])
+  recievedmessages User @relation("recievedmessages",fields: [recieverId],references: [id])
 }
