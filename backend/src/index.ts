@@ -80,6 +80,31 @@ app.post('/signin',async (req,res)=>{
 })
 
 
+app.get('/user',Middleware,async(req,res)=>{
+
+    const username = req.body.username
+
+    try{
+        const user = await client.user.findUnique({
+            where:{ 
+                username: username 
+            } 
+
+        })
+
+        res.json({
+            message:"found user",
+            id:user?.id
+        })
+
+    }catch{
+        res.json({
+            message:"coudn't found user !!!"
+        })
+    }
+})
+
+
 app.post('/profile',Middleware,async(req ,res)=>{
     const {bio,role,image} = req.body ; 
 
@@ -225,6 +250,8 @@ app.delete('/tag',Middleware,async(req,res)=>{
           })
     }
 })
+
+
 
 
 app.listen(3000,()=>{
