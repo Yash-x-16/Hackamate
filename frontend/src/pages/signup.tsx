@@ -6,8 +6,8 @@ export  function  Signup(){
     return <div className=" flex items-center justify-center bg-gray-100 h-screen w-screen flex-col">
         <div className=" h-auto w-auto flex flex-col items-center pb-5"> 
             <div className="flex">
-                <PiLessThan color="blue" size={"40px"}/>
-                <PiGreaterThan  color="blue" size={"40px"}/>
+                <PiLessThan color="blue" size={"30px"}/>
+                <PiGreaterThan  color="blue" size={"30px"}/>
             </div>
             <div className="flex pt-4 flex-col items-center">
                 <h1 className="font-bold text-black text-3xl">
@@ -45,8 +45,9 @@ export  function  Signup(){
                     </div>
 
                     <div className="m-2 flex justify-center items-center">
-                    <button className="btn btn-wide btn-primary mb-4">Create account
-                    <IoIosArrowRoundForward size={"30 px"}/>
+                    <button className="btn btn-wide btn-primary mb-4">
+                        Create account
+                    <IoIosArrowRoundForward size={"30px"}/>
                     </button>
                     </div>
             </div>
