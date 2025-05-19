@@ -49,6 +49,46 @@ app.post('/signup',async (req,res)=>{
 })
 
 
+app.get('/username',async(req,res)=>{
+
+    const {username,email} = req.body
+
+    try{
+        const existingUserByUsername = await client.user.findUnique({
+            where: {
+              username: username.toLowerCase(), // assuming usernames are stored lowercase
+            }
+          });
+          
+          const existingUserByEmail = await client.user.findUnique({
+            where: {
+              email: email.toLowerCase(), // same with email
+            }
+          });
+
+
+          if (existingUserByUsername || existingUserByEmail) {
+        
+            res.status(401).json({
+              message: "User already exists",
+              usernameTaken: !!existingUserByUsername,
+              emailTaken: !!existingUserByEmail
+            });
+
+          } else {
+            res.json({
+              message: "OK"
+            });
+          }
+                    
+    }catch{
+        res.json({
+            message:"some error occured"
+        })
+    }
+
+})
+
 app.post('/signin',async (req,res)=>{
     const {username,password} = req.body 
     
