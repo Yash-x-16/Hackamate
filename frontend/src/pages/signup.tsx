@@ -1,14 +1,88 @@
 import { PiGreaterThan,PiLessThan} from "react-icons/pi";
 import { IoIosArrowRoundForward } from "react-icons/io";
-import { useState } from "react";
+import { useRef, useState} from "react";
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
-import { Eye, EyeClosed } from "lucide-react";
+import { axiosInstance } from "../lib/axios";
+import toast from 'react-hot-toast';
+import { Loader } from "lucide-react";
+
 
 export  function  Signup(){ 
-
+    interface UsernameResponse {
+        message: string;
+      }
     const [visible,Setvisible] = useState(false)
-    const [text,Settext] = useState(false)
+    const userRef = useRef<HTMLInputElement>(null)
+    const passwordRef = useRef<HTMLInputElement>(null)
+    const emailRef = useRef<HTMLInputElement>(null) 
+    const [checkRef ,setcheck] = useState(false)
+    const [loading,setLoading] = useState(false)
+
+  
+  
+    async function validate(){
+        const password = passwordRef.current?.value 
+        const email  = emailRef.current?.value 
+        const username = userRef.current?.value 
+    
+        if (!username) return toast.error("Username can't be empty",{duration:2000});
+        if (!password) return toast.error("Password can't be empty",{duration:2000});
+        if (password.length < 6) return toast.error("Password must be at least 6 characters",{duration:2000});
+        if (!email?.includes('@')) return toast.error("Invalid email",{duration:2000});
+        if(checkRef==false){return toast.error("agree terms and consition to continue")}
+            try {
+            const resp = await axiosInstance.post<UsernameResponse>('/username', {
+                username,
+                email
+            });
+
+            if (resp.data.message === "user already exists") {
+                return toast.error("User already exists");
+  }
+} catch (error) {
+  toast.error("username/email already exist !!",{duration:2000});
+  console.error(error);
+  return false;
+}
+
+console.log("validate: success");
+return true; 
+    }
+  
+  
+  
+    async function submit(){
+        setLoading(true)
+        const success = await validate()
+        setLoading(false) 
+        
+        if(success===true){
+            setLoading(true)
+             await send()
+           setLoading(false) 
+        }
+        
+    }
+        async function send (){ 
+            
+            const username = userRef.current?.value ; 
+            const email = emailRef.current?.value ; 
+            const password = passwordRef.current?.value ;
+            
+            try{
+                const isValid = await validate();
+                if (!isValid) return;
+             await axiosInstance.post('http://localhost:3000/signup',{username,email,password}) 
+                toast.success("signed up!!",{duration:3000})
+            }catch{
+            toast.error("error occured",{duration:2000})
+            }
+
+        }
+
+
+
     return <div className=" flex items-center justify-center bg-gray-100 h-screen w-screen flex-col">
         <div className=" h-auto w-auto flex flex-col items-center pb-5"> 
             <div className="flex">
@@ -33,7 +107,9 @@ export  function  Signup(){
                         <legend className="fieldset-legend text-black font-normal text-sm ">Username</legend>
                         <input type="text" className="input-primary 
                         shadow-xs text-gray-500 border focus:ring-indigo-500 focus:border-indigo-500
-                         border-gray-300 rounded-md h-9 text-base focus:outline-none  px-4 py-2 " placeholder="Yash"/>
+                         border-gray-300 rounded-md h-9 text-base focus:outline-none  px-4 py-2 " placeholder="Yash"
+                         ref={userRef}
+                         />
                     </fieldset>
                     
                     
@@ -41,7 +117,9 @@ export  function  Signup(){
                         <legend className="fieldset-legend text-black pl-5 font-normal text-sm ">Email</legend>
                         <input type="text" className="input-primary
                         focus:ring-indigo-500 focus:border-indigo-500  shadow-xs text-gray-500 border
-                         border-gray-300 rounded-md h-9 ml-5 mb-2 mr-5 focus:outline-none text-base px-4 py-2" placeholder="xyz@gmail.com" />
+                         border-gray-300 rounded-md h-9 ml-5 mb-2 mr-5 focus:outline-none text-base px-4 py-2"
+                         ref={emailRef}
+                         placeholder="xyz@gmail.com" />
                     </fieldset>
                 
 
@@ -55,6 +133,7 @@ export  function  Signup(){
                             focus:ring-indigo-500 focus:border-indigo-500 
                             rounded-md h-9 w-full focus:outline-none text-base px-2 py-2 pr-10"
                             placeholder="*****"
+                            ref={passwordRef}
                             />
                             <button
                             type="button"
@@ -69,7 +148,13 @@ export  function  Signup(){
 
 
                     <div className="flex items-center m-4">
-                        <input type="checkbox" defaultChecked className="checkbox checkbox-primary checkbox-xs mr-2"/>
+                        <input type="checkbox"
+                         defaultChecked className="checkbox checkbox-primary checkbox-xs mr-2"
+                         onClick={()=>{
+                            setcheck(c=>!c)
+                         }}
+                         checked={checkRef}
+                        />
                         <span className="text-black pr-4 inline-block">
                             I agree to the <a className="text-indigo-600 cursor-pointer">
                              Terms of Service </a> 
@@ -80,8 +165,11 @@ export  function  Signup(){
                     </div>
 
                     <div className="m-2 flex justify-center items-center">
-                    <button className="btn btn-wide btn-primary mb-4">
-                        Create account
+                    <button className="btn btn-wide btn-primary mb-4"
+                        onClick={submit}
+                    >
+                        {loading?<Loader className='size-6 animate-spin text-white'></Loader>:"Create account"}
+        
                     <IoIosArrowRoundForward size={"30px"}/>
                     </button>
                     </div>
