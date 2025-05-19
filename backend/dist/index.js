@@ -30,7 +30,8 @@ app.use((0, cors_1.default)({
 }));
 app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password, email } = req.body;
-    const hashed = yield bcrypt_1.default.hash(password, 4);
+    const salt = yield bcrypt_1.default.genSalt(4);
+    const hashed = yield bcrypt_1.default.hash(password, salt);
     try {
         yield client.user.create({
             data: {
@@ -46,6 +47,38 @@ app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     catch (_a) {
         res.json({
             message: " !! couldn't signedup !!"
+        });
+    }
+}));
+app.post('/username', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { username, email } = req.body;
+    try {
+        const existingUserByUsername = yield client.user.findUnique({
+            where: {
+                username: String(username) // assuming usernames are stored lowercase
+            }
+        });
+        const existingUserByEmail = yield client.user.findUnique({
+            where: {
+                email: String(email), // same with email
+            }
+        });
+        if (existingUserByUsername || existingUserByEmail) {
+            res.status(401).json({
+                message: "User already exists",
+                usernameTaken: !!existingUserByUsername,
+                emailTaken: !!existingUserByEmail
+            });
+        }
+        else {
+            res.json({
+                message: "OK"
+            });
+        }
+    }
+    catch (_a) {
+        res.json({
+            message: "some error occured"
         });
     }
 }));

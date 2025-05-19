@@ -26,7 +26,8 @@ app.use(cors({
 app.post('/signup',async (req,res)=>{ 
 
     const {username,password , email} = req.body  ; 
-    const hashed  = await bcrypt.hash(password,4) 
+    const salt = await bcrypt.genSalt(4)
+    const hashed  = await bcrypt.hash(password,salt) 
     try{
 
         await client.user.create({
@@ -49,20 +50,20 @@ app.post('/signup',async (req,res)=>{
 })
 
 
-app.get('/username',async(req,res)=>{
+app.post('/username',async(req,res)=>{
 
     const {username,email} = req.body
 
     try{
         const existingUserByUsername = await client.user.findUnique({
             where: {
-              username: username.toLowerCase(), // assuming usernames are stored lowercase
+              username: String(username) // assuming usernames are stored lowercase
             }
           });
           
           const existingUserByEmail = await client.user.findUnique({
             where: {
-              email: email.toLowerCase(), // same with email
+              email: String(email), // same with email
             }
           });
 
