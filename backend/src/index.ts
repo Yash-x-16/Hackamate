@@ -7,6 +7,7 @@ import bcrypt from "bcrypt"
 import jsonwebtoken from "jsonwebtoken" 
 import { Jwt_secret } from "./config"
 import { Middleware } from "./middleware"
+import cors from "cors"
 
 
 const app = express()
@@ -15,6 +16,11 @@ const jwt = jsonwebtoken
 
 
 app.use(express.json()) 
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true
+} 
+)) ; 
 
 
 app.post('/signup',async (req,res)=>{ 
@@ -79,6 +85,18 @@ app.post('/signin',async (req,res)=>{
     }
 })
 
+app.get('/ischecking',Middleware,(req,res)=>{
+    try{
+
+    //@ts-ignore
+    res.json(req.user)
+
+    }catch{
+        res.json({
+            message:"unautorized user !!"
+        })
+    }
+})
 
 app.get('/user',Middleware,async(req,res)=>{
 

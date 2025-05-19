@@ -19,10 +19,15 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("./config");
 const middleware_1 = require("./middleware");
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 const client = new client_1.PrismaClient();
 const jwt = jsonwebtoken_1.default;
 app.use(express_1.default.json());
+app.use((0, cors_1.default)({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
 app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password, email } = req.body;
     const hashed = yield bcrypt_1.default.hash(password, 4);
@@ -68,6 +73,36 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     catch (_a) {
         res.json({
             message: "try again !!"
+        });
+    }
+}));
+app.get('/ischecking', middleware_1.Middleware, (req, res) => {
+    try {
+        //@ts-ignore
+        res.json(req.user);
+    }
+    catch (_a) {
+        res.json({
+            message: "unautorized user !!"
+        });
+    }
+});
+app.get('/user', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const username = req.body.username;
+    try {
+        const user = yield client.user.findUnique({
+            where: {
+                username: username
+            }
+        });
+        res.json({
+            message: "found user",
+            id: user === null || user === void 0 ? void 0 : user.id
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: "coudn't found user !!!"
         });
     }
 }));
@@ -187,6 +222,84 @@ app.delete('/tag', middleware_1.Middleware, (req, res) => __awaiter(void 0, void
         console.log(e);
         res.json({
             message: "cannot deleted tag"
+        });
+    }
+}));
+app.post('/messages', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { content, recieverId } = req.body;
+    try {
+        yield client.message.create({
+            data: {
+                content: content,
+                recieverId: recieverId, //@ts-ignore 
+                senderId: req.id
+            }
+        });
+        res.json({
+            message: "message sent !"
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: "message not sent !"
+        });
+    }
+}));
+app.get('/messages', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const message = yield client.message.findMany({
+            where: {
+                //@ts-ignore
+                id: req.id
+            }
+        });
+        const content = message.map(x => x.content);
+        res.json({
+            message: content
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: "message not found !"
+        });
+    }
+}));
+app.post('/hackathon', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name, placement, year } = req.body;
+    try {
+        yield client.hackathon.create({
+            data: {
+                name: name,
+                placement: placement,
+                year: year, //@ts-ignore
+                user: req.id
+            }
+        });
+        res.json({
+            message: "updated hackathon"
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: "try again !!"
+        });
+    }
+}));
+app.get('/hackathon', middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const hack = yield client.hackathon.findMany({
+            where: {
+                userid: req.id
+            }
+        });
+        const hacked = hack.map(x => x);
+        res.json({
+            hack: hacked
+        });
+    }
+    catch (_a) {
+        res.json({
+            message: "didn't found hacks!!"
         });
     }
 }));
