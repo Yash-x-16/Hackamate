@@ -6,12 +6,15 @@ import { IoMdEyeOff } from "react-icons/io";
 import { axiosInstance } from "../lib/axios";
 import toast from 'react-hot-toast';
 import { Loader } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from '../store/store.ts'
 
 export  function  Signup(){ 
     interface UsernameResponse {
         message: string;
-      }
+      } //@ts-ignore
+    const {authUser} = useAuthStore()
+    const navigate = useNavigate()
     const [visible,Setvisible] = useState(false)
     const userRef = useRef<HTMLInputElement>(null)
     const passwordRef = useRef<HTMLInputElement>(null)
@@ -26,7 +29,7 @@ export  function  Signup(){
         const email  = emailRef.current?.value 
         const username = userRef.current?.value 
     
-        if (!username) return toast.error("Username can't be empty",{duration:2000});
+        if (!username) return toast.error("Username can't be empty",{duration:2000}) ;
         if (!password) return toast.error("Password can't be empty",{duration:2000});
         if (password.length < 6) return toast.error("Password must be at least 6 characters",{duration:2000});
         if (!email?.includes('@')) return toast.error("Invalid email",{duration:2000});
@@ -62,7 +65,8 @@ return true;
              await send()
            setLoading(false) 
         }
-        
+        authUser:true ;
+        navigate('/profile')
     }
         async function send (){ 
             
@@ -94,7 +98,10 @@ return true;
                     create your account
                 </h1> 
                 <span className="pt-1 text-gray-400 ">
-                    already have an account ? <a className="text-indigo-600 cursor-pointer">
+                    already have an account ? <a className="text-indigo-600 cursor-pointer"
+                    onClick={()=>{
+                        navigate('/signin')
+                    }}>
                         sign in 
                     </a>
                 </span>
@@ -149,8 +156,8 @@ return true;
 
                     <div className="flex items-center m-4">
                         <input type="checkbox"
-                         defaultChecked className="checkbox checkbox-primary checkbox-xs mr-2"
-                         onClick={()=>{
+                        className="checkbox checkbox-primary checkbox-xs mr-2"
+                         onChange={()=>{
                             setcheck(c=>!c)
                          }}
                          checked={checkRef}
@@ -167,6 +174,7 @@ return true;
                     <div className="m-2 flex justify-center items-center">
                     <button className="btn btn-wide btn-primary mb-4"
                         onClick={submit}
+                        
                     >
                         {loading?<Loader className='size-6 animate-spin text-white'></Loader>:"Create account"}
         

@@ -17,7 +17,7 @@ function App() {//@ts-ignore
 
   },[checkAuth])
 
-  console.log(authUser)
+
 
   if(isCheckingAuth && !authUser){
     return (<div className='flex justify-center items-center h-screen bg-gray-100'>
