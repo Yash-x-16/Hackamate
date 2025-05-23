@@ -99,7 +99,7 @@ app.post('/signin',async(req,res)=>{
                 email: email
             }
         })
-        if(!resp){res.json({
+        if(!resp){res.status(401).json({
             message : "invalid email or password "
         })}
         const matched = await bcrypt.compare(password, resp?.password as string);
@@ -112,8 +112,7 @@ app.post('/signin',async(req,res)=>{
             });
         }
     
-    } catch (e) {
-        console.log(e);
+    } catch  {
         res.json({
             message: "Try again !!"
         });

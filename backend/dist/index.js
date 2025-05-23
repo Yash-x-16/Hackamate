@@ -91,7 +91,7 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             }
         });
         if (!resp) {
-            res.json({
+            res.status(401).json({
                 message: "invalid email or password "
             });
         }
@@ -103,8 +103,7 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             });
         }
     }
-    catch (e) {
-        console.log(e);
+    catch (_a) {
         res.json({
             message: "Try again !!"
         });
