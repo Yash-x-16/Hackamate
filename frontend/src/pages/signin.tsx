@@ -133,9 +133,10 @@ function Navigate(){
                 <button className="btn btn-wide btn-primary mb-4"
                 onClick={submit}    
                 >
+                    <IoIosArrowRoundForward size={"30px"}/>
                     {loading?<Loader className='size-6 animate-spin text-white'></Loader>:"Create account"}
     
-                <IoIosArrowRoundForward size={"30px"}/>
+                
                 </button>
                 </div>
                 </div>         
