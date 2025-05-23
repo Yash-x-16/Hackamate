@@ -90,39 +90,39 @@ app.post('/username',async(req,res)=>{
 
 })
 
-app.post('/signin',async (req,res)=>{
-    const {username,password} = req.body 
+app.post('/signin',async(req,res)=>{
+    const { email, password } = req.body;
+    console.log(password);
     
-    try{
-
-      const resp =   await client.user.findFirst({
-            
-        where:{
-                username : username
+    try {
+        const resp = await client.user.findFirst({
+            where: {
+                email: email
             }
-        }) 
-
-
-        const matched  = await bcrypt.compare(password,resp?.password as string) 
-
-        if(matched){
-            const token = jwt.sign({ id: resp?.id } ,Jwt_secret) 
-            
-            res.json({
-                token :token
-            })
-
-        }else{
-            res.json({
-                message : " wrong password "
-            })
-        }
-
-    }catch{ 
-
-        res.json({
-            message:"try again !!"
         })
+        if(!resp){ 
+            res.status(401).json({
+            message: "Invalid email or password"
+        })}
+        const matched = await bcrypt.compare(password, resp?.password as string);
+    
+        if (matched) {
+            const token = jwt.sign({ id: resp?.id }, Jwt_secret);
+    
+            res.json({
+                token: token
+            });
+        } else {
+            res.json({
+                message: "Invalid email or password"
+            });
+        }
+    
+    } catch (e) {
+        console.log(e);
+        res.json({
+            message: "Try again !!"
+        });
     }
 })
 

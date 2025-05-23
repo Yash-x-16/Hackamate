@@ -83,11 +83,12 @@ app.post('/username', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 }));
 app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
+    console.log(password);
     try {
         const resp = yield client.user.findFirst({
             where: {
-                username: username
+                email: email
             }
         });
         const matched = yield bcrypt_1.default.compare(password, resp === null || resp === void 0 ? void 0 : resp.password);
@@ -103,7 +104,8 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             });
         }
     }
-    catch (_a) {
+    catch (e) {
+        console.log(e);
         res.json({
             message: "try again !!"
         });
