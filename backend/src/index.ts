@@ -92,7 +92,6 @@ app.post('/username',async(req,res)=>{
 
 app.post('/signin',async(req,res)=>{
     const { email, password } = req.body;
-    console.log(password);
     
     try {
         const resp = await client.user.findFirst({
@@ -100,9 +99,8 @@ app.post('/signin',async(req,res)=>{
                 email: email
             }
         })
-        if(!resp){ 
-            res.status(401).json({
-            message: "Invalid email or password"
+        if(!resp){res.json({
+            message : "invalid email or password "
         })}
         const matched = await bcrypt.compare(password, resp?.password as string);
     
@@ -111,10 +109,6 @@ app.post('/signin',async(req,res)=>{
     
             res.json({
                 token: token
-            });
-        } else {
-            res.json({
-                message: "Invalid email or password"
             });
         }
     

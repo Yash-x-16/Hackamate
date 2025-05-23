@@ -84,13 +84,17 @@ app.post('/username', (req, res) => __awaiter(void 0, void 0, void 0, function* 
 }));
 app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    console.log(password);
     try {
         const resp = yield client.user.findFirst({
             where: {
                 email: email
             }
         });
+        if (!resp) {
+            res.json({
+                message: "invalid email or password "
+            });
+        }
         const matched = yield bcrypt_1.default.compare(password, resp === null || resp === void 0 ? void 0 : resp.password);
         if (matched) {
             const token = jwt.sign({ id: resp === null || resp === void 0 ? void 0 : resp.id }, config_1.Jwt_secret);
@@ -98,16 +102,11 @@ app.post('/signin', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 token: token
             });
         }
-        else {
-            res.json({
-                message: " wrong password "
-            });
-        }
     }
     catch (e) {
         console.log(e);
         res.json({
-            message: "try again !!"
+            message: "Try again !!"
         });
     }
 }));
